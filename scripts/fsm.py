@@ -8,6 +8,14 @@ import smach_ros
 import time
 import random
 import roslib
+from math import atan2
+
+from geometry_msgs.msg import Twist,Point
+from nav_msgs.msg import Odometry
+from tf.transformation import euler_from_quaternion
+
+
+
 
 Move_to_play = False
 
@@ -35,7 +43,17 @@ def callback(data):
 		Move_to_play=1
      else :
 		Move_to_play=0
-		
+
+def newOdom(msg):
+	global x
+	global y
+	global theta
+
+	x = msg.pose.pose.position.x
+	y  = msg.pose.pose.position.y
+	tor_q = msg.pose.pose.orientation
+	(roll, pitch, theta) = euler_from_quaternion ([rot_q.x,rot_q.y, rot_q.z, rot_q.w])
+
 		
 
 
@@ -48,8 +66,7 @@ def user_action():
 		return 'play'
 	else :
 		return 'sleep_from_normal'
-	
-   
+
 
 
 
@@ -63,11 +80,22 @@ class Normal(smach.State):
                              output_keys=['normal_counter_out'])
         
     def execute(self, userdata):
-	time.sleep(10)
-	
-	rospy.loginfo('Executing state NORMAL (users = %f)'%userdata.normal_counter_in)
-	userdata.normal_counter_out = userdata.normal_counter_in + 1 
-	return user_action()
+
+    #--- Code to move randomly ---
+    
+	    rospy.init_node('controller_normal_randomness', anonymous=True)
+	    mov_pub = rospy.Publisher('/robot/cmd_vel', Twist, queue_size=10)
+	    movement_cmd = Twist()
+	    movement_cmd.linear.x =random.randint(-2, 2)
+	    movement_cmd.angular.z =random.randint(-2, 2)
+	    mov_pub.Publisher.publish(movement_cmd)
+	    self.rate = rospy.Rate(10) #10hz
+
+	    #--- Count the number of time of Normal state ---
+	    time.sleep(10)
+		rospy.loginfo('Executing state NORMAL (users = %f)'%userdata.normal_counter_in)
+		userdata.normal_counter_out = userdata.normal_counter_in + 1 
+		return user_action()
 
 
 
@@ -81,11 +109,44 @@ class Sleep(smach.State):
                              output_keys=['sleep_counter_out'])
         
     def execute(self, userdata):
-	time.sleep(10)
-	
-	rospy.loginfo('Executing state SLEEP (users = %f)'%userdata.sleep_counter_in)
-	userdata.sleep_counter_out = userdata.sleep_counter_in + 1 
-	return 'normal_from_sleep'
+
+    	rospy.init_node ("home_controller")
+    	sub_odom = rospy.Subscriber("/robot/odom",Odometry, newOdom)
+    	pub_vel = rospy.Subscriber("/robot/cmd_vel",Twist, queue_size=10) 
+
+    	speed = Twist()
+    	r = rospy.Rate(10)
+
+    	goal = Point()
+    	goal.x = y_home
+    	goal.y = x_home
+    	flag_home=0
+
+    	while not flag_home=0:
+    		inc_x = goal.x - x
+    		inc_y = goal.y - y
+
+    		angle_to_goal = atan2(inc_y, inc_x)
+
+    		if abs(angle_to_goal - theta) > 0.1:
+    			speed.linear.x = 0.0
+    			speed.angular.z = 0.3
+    		else:
+    			speed.linear.x = 0.5
+    			speed.angular.z = 0.0
+    		if abs(inc_x)<0.1 && abs(inc_y)<0.1:
+    			speed.linear.x = 0.0
+    			speed.angular.z = 0.0
+    			flag_home=1
+
+    		pub.publish(speed)
+    		r.sleep()
+
+
+		time.sleep(10)
+		rospy.loginfo('Executing state SLEEP (users = %f)'%userdata.sleep_counter_in)
+		userdata.sleep_counter_out = userdata.sleep_counter_in + 1 
+		return 'normal_from_sleep'
 
 	
 
