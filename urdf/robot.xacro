@@ -1,0 +1,264 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="robot_xacro">
+<xacro:include filename="$(find exp_assignment2)/urdf/robot.gazebo"/> 	
+
+	<!-- macro to define length and radius of the wheel -->				
+	<xacro:property name="length_wheel" value="0.04" />
+	<xacro:property name="radius_wheel" value="0.1" />
+
+	<!-- macro to define length and radius of the neck -->
+	<xacro:property name="length_neck" value="0.15" />
+	<xacro:property name="radius_neck" value="0.04" />
+
+  <xacro:property name="x_chassis" value="0.5" />
+  <xacro:property name="y_chassis" value="0.3" />
+  <xacro:property name="z_chassis" value="0.07" />
+
+  <xacro:property name="x_head" value="0.32" />
+  <xacro:property name="y_head" value="0.21" />
+  <xacro:property name="z_head" value="0.07" />
+
+
+
+	<xacro:macro name="inertial_box" params="mass x y z">
+               <inertial>
+                       <mass value="${mass}" />
+
+                       <inertia  ixx="${mass*(y*y+z*z)/12}" ixy = "0" ixz = "0"
+                                 iyy="${mass*(x*x+z*z)/12}" iyz = "0"
+                                 izz="${mass*(x*x+z*z)/12}" /> 
+                </inertial>
+	</xacro:macro>
+
+    <xacro:macro name="inertial_cylinder" params="mass r h">
+               <inertial>
+                       <mass value="${mass}" />
+
+                       <inertia  ixx="${(mass*((3*r*r)+(h*h)))/12}" ixy = "0" ixz = "0"
+                                 iyy="${(mass*((3*r*r)+(h*h)))/12}" iyz = "0"
+                                 izz="${(mass*r*r)/2}" />
+                </inertial>
+  </xacro:macro>
+
+    <xacro:macro name="head_geometry">
+    <geometry>
+            <box size="${x_head} ${y_head} ${z_head}"/>
+        </geometry>
+  </xacro:macro>
+
+    <xacro:macro name="chassis_geometry">
+    <geometry>
+            <box size="${x_chassis} ${y_chassis} ${z_chassis}"/>
+        </geometry>
+  </xacro:macro>
+
+
+
+  <xacro:macro name="wheel_geometry">
+		<geometry>
+       			<cylinder length="${length_wheel}" radius="${radius_wheel}"/>
+     		</geometry>
+	</xacro:macro>
+
+
+
+	<xacro:macro name="neck_geometry">
+		<geometry>
+       			<cylinder length="${length_neck}" radius="${radius_neck}"/>
+     		</geometry>
+	</xacro:macro>
+	
+	
+
+  <material name="black">
+    <color rgba="0.0 0.0 0.0 1.0"/>
+  </material>
+  <material name="blue">
+    <color rgba="0.203125 0.23828125 0.28515625 1.0"/>
+  </material>
+  <material name="green">
+    <color rgba="0.0 0.8 0.0 1.0"/>
+  </material>
+  <material name="grey">
+    <color rgba="0.2 0.2 0.2 1.0"/>
+  </material>
+  <material name="orange">
+    <color rgba="1.0 0.423529411765 0.0392156862745 1.0"/>
+  </material>
+  <material name="brown">
+    <color rgba="0.870588235294 0.811764705882 0.764705882353 1.0"/>
+  </material>
+  <material name="red">
+    <color rgba="0.80078125 0.12890625 0.1328125 1.0"/>
+  </material>
+  <material name="white">
+    <color rgba="1.0 1.0 1.0 1.0"/>
+  </material>
+
+
+
+	  <link name="link_chassis">
+	<!-- pose and inertial -->
+    <pose>0 0 0.1 0 0 0</pose>
+      <origin rpy="0 0 0" xyz="0 0 0.1"/>
+      <xacro:inertial_box mass="5" x="${x_chassis}" y="${y_chassis}" z="${z_chassis}"/>
+
+	<!-- body -->
+    <collision name="collision_chassis">
+      <origin rpy="0 0 0" xyz="0 0 0.1"/>
+      <xacro:chassis_geometry />
+    </collision>
+    <visual>
+      <xacro:chassis_geometry />
+      <material name="blue"/>
+    </visual>
+	<!-- caster front -->
+    <collision name="caster_front_collision">
+      <origin rpy=" 0 0 0" xyz="0.35 0 -0.05"/>
+      <geometry>
+        <sphere radius="0.05"/>
+      </geometry>
+    </collision>
+    <visual name="caster_front_visual">
+      <origin rpy=" 0 0 0" xyz="0.2 0 -0.05"/>
+      <geometry>
+        <sphere radius="0.05"/>
+      </geometry>
+    </visual>
+ </link>
+
+	<!-- neck -->
+  <link name="link_neck">
+    <xacro:inertial_cylinder mass="0.2" r="${radius_neck}" h="${length_neck}"/>
+    <collision name="neck_collision">
+      <origin rpy=" 0 0 0" xyz="0 0 0"/>
+      <xacro:neck_geometry />
+    </collision>
+    <visual name="neck_visual">
+      <origin rpy=" 0 0 0" xyz="0 0 0"/>
+      <xacro:neck_geometry />
+       <material name="red"/>
+    </visual>
+  </link>
+
+	<!-- head -->
+ <link name="link_head">
+    <origin rpy="0 0 0" xyz="0.08 0 0"/>
+    <xacro:inertial_box mass="0.8" x="${x_head}" y="${y_head}" z="${z_head}"/>
+    <collision name="link_head_collision">
+      <xacro:head_geometry />
+    </collision>
+    <visual name="link_head_visual">
+      <origin rpy="0 0 0" xyz="0.08 0 0"/>
+      <xacro:head_geometry />
+      <material name="red"/>
+    </visual>
+  </link>
+
+
+	<!-- right wheel -->
+   <link name="link_right_wheel">
+    <xacro:inertial_cylinder mass="0.2" r="${radius_wheel}" h="${length_wheel}"/>
+    <collision name="link_right_wheel_collision">
+      <origin rpy="0 1.5707 1.5707" xyz="0 0 0"/>
+      <xacro:wheel_geometry />
+    </collision>
+    <visual name="link_right_wheel_visual">
+      <origin rpy="0 1.5707 1.5707" xyz="0 0 0"/>
+      <xacro:wheel_geometry />
+      <material name="red"/>
+    </visual>
+  </link>
+
+
+	<!-- left wheel -->
+   <link name="link_left_wheel">
+    <xacro:inertial_cylinder mass="0.2" r="${radius_wheel}" h="${length_wheel}"/>
+    <collision name="link_left_wheel_collision">
+      <origin rpy="0 1.5707 1.5707" xyz="0 0 0"/>
+      <xacro:wheel_geometry />
+    </collision>
+    <visual name="link_left_wheel_visual">
+      <origin rpy="0 1.5707 1.5707" xyz="0 0 0"/>
+      <xacro:wheel_geometry />
+      <material name="red"/>
+    </visual>
+   </link>
+
+
+   <joint name="joint_neck" type="revolute">
+    <axis xyz="0 0 1"/>
+    <origin rpy="0 0 0" xyz="0.15 0 0.075"/>
+    <child link="link_neck"/>
+    <parent link="link_chassis"/>
+    <limit effort="10000" lower="-0.7" upper="0.7" velocity="1000"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+   </joint>
+
+
+   <joint name="joint_head" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.1"/>
+    <child link="link_head"/>
+    <parent link="link_neck"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+   </joint>
+
+   <joint name="joint_right_wheel" type="continuous">
+    <origin rpy="0 0 0" xyz="-0.05 0.15 0"/>
+    <child link="link_right_wheel"/>
+    <parent link="link_chassis"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+   </joint>
+  
+  
+   <joint name="joint_left_wheel" type="continuous">
+    <origin rpy="0 0 0" xyz="-0.05 -0.15 0"/>
+    <child link="link_left_wheel"/>
+    <parent link="link_chassis"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+   </joint>
+
+
+
+ 
+
+  <link name="camera_link">
+	    <collision>
+	      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+	      <geometry>
+		<box size="0.05 0.05 0.05"/>
+	      </geometry>
+	    </collision>
+	    <visual>
+	      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+	      <geometry>
+		<box size="0.05 0.05 0.05"/>
+	      </geometry>
+	      <material name="red">
+		<color rgba="1 0 0 1"/>
+	      </material>
+	    </visual>
+	    <inertial>
+	      <mass value="1e-5" />
+	      <origin xyz="0 0 0" rpy="0 0 0"/>
+	      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+	    </inertial> 
+  </link>
+  
+  <joint name="camera_joint" type="fixed">
+	    <axis xyz="0 1 0" />
+	    <origin xyz="0.23 0 0.0" rpy="0 0 0"/>
+	    <parent link="link_head"/>
+	    <child link="camera_link"/> 
+	 </joint>
+
+<!--  Transmission to control the rotation of the neck -->
+
+
+
+
+</robot>

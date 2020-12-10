@@ -1,0 +1,8 @@
+geometry_msgs/PoseStamped 
+target_pose
+
+---
+---
+
+string state
+geometry_msgs/Pose position
