@@ -58,9 +58,15 @@
   <node name="urdf_spawner_human1" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
         args="-urdf -model human1 -param human_description1 -x -7 -y 7 -z 0.34 -R 0 -P 0 -Y 0"/>
 
+      <node name="cv_server" pkg="exp_assignment2" type="cv.py" output="screen" />
+
+      <node name="fsm_server" pkg="exp_assignment2" type="fsm.py" output="screen" />
+
   <group ns="$(arg ns1)">
   	<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-	args="-urdf -model $(arg ns1) -param robot_description -x -5 -y 7 -Y 3.14 -z 0.05"/>
+	args="-urdf -model $(arg ns1) -param robot_description -x 0 -y 0 -Y 3.14 -z 0.05"/>
+	
+	
   </group>
   
   <group ns="$(arg ns2)">
@@ -68,6 +74,8 @@
 	args="-urdf -model $(arg ns2) -param ball_description -x -7 -y 6 -z 0.25"/>
 	<node name="position_server" pkg="exp_assignment2" type="go_to_point_ball.py" output="screen" />
   </group>
+
+
 
 
 

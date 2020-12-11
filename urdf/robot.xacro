@@ -186,13 +186,13 @@
    </link>
 
 
-   <joint name="joint_neck" type="revolute">
+   <joint name="joint_neck" type="fixed">
     <axis xyz="0 0 1"/>
     <origin rpy="0 0 0" xyz="0.15 0 0.075"/>
     <child link="link_neck"/>
     <parent link="link_chassis"/>
-    <limit effort="10000" lower="-0.7" upper="0.7" velocity="1000"/>
-    <joint_properties damping="1.0" friction="1.0"/>
+    <!--<limit effort="10000" lower="-0.7" upper="0.7" velocity="1000"/> 
+    <joint_properties damping="1.0" friction="1.0"/> -->
    </joint>
 
 
