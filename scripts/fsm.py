@@ -31,7 +31,7 @@ Move_to_play = False
 def callback(data):
      global Move_to_play
 
-     #rospy.loginfo("Mode is :%d ,User is in position: X = %d , Y = %d" % (data.state, data.x, data.y))
+     
      if  data.data == True:
         Move_to_play=True
      else :
@@ -65,7 +65,7 @@ class Normal(smach.State):
 
             #--- Code to move randomly ---
     
-	    #rospy.init_node('controller_normal_randomness', anonymous=True)
+	    
 	    mov_pub = rospy.Publisher('/robot/cmd_vel', Twist, queue_size=10)
             movement_cmd = Twist()
 	    
@@ -80,7 +80,7 @@ class Normal(smach.State):
                 rospy.Subscriber("robot/detectblob",Bool, callback)
             	movement_cmd.linear.x =(random.randint(0, 15))/10
             	movement_cmd.angular.z =random.randint(-2, 2)
-            	#rospy.loginfo('Sto dando valori random, dovrei muovermi')
+            	
             	mov_pub.publish(movement_cmd)
             	r.sleep()
 
@@ -103,7 +103,7 @@ class Sleep(smach.State):
         
     def execute(self, userdata):
 
-    	#rospy.init_node ("home_controller")
+    	
     	sub_odom = rospy.Subscriber("/robot/odom",Odometry, newOdom)
     	pub_vel = rospy.Publisher("/robot/cmd_vel",Twist, queue_size=10) 
 
@@ -156,7 +156,7 @@ class Play(smach.State):
     def execute(self, userdata):
         sub_state = rospy.Publisher('/robot/state', Bool, queue_size=1)
         while Move_to_play == True:
-            #rospy.loginfo('non sono nel loop di play')
+
             sub_state.publish(True)
             rospy.Subscriber("robot/detectblob",Bool, callback)
             

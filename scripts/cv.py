@@ -83,7 +83,7 @@ class image_feature:
         if (len(cnts) > 0) :
             self.det_pub.publish(True) #send to fsm the detection of something
         else:
-            self.det_pub.publish(False) #send to fsm the detection of something
+            self.det_pub.publish(False) #send to fsm the detection of nothing
 
         if (Flag_play==True):
             rospy.loginfo('seguo')
