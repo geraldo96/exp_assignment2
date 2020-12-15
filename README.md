@@ -24,6 +24,17 @@ SCRIPT Foulder :
 
 Created 2 new python file : 
 
+1) fsm.py , contain the state machine from smach with:
+- NORMAL State , send random value to the /robot/cmd_vel and if detect the ball move to State PLAY;
+- PLAY State , follow the detected ball untill the ball disapear and move to State SLEEP;
+- SLEEP State , Move to the Home position but is bad implemente because the position is given from the odom because a word frame is not used, but wait some sec to the home and after move to State NORMAL;
+
+2) cv.py , contain the OpenCV operation , if detect something publish to /robot/balldetec and the fsm.py sub to the topic to change the state to PLAY,and recive another flag from the fsm.py to start to follow the ball.
+
+Problem with Debug:
+- There are some commont part to control the join of the head,i could not implement it perfectly then i removed : revolute to fixed on .xacro file , trasmition component, config foulder and some line to launch the controll for the joint.
+
+
 
 
 
